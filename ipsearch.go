@@ -2,7 +2,6 @@ package ipsearch
 
 import (
 	"io/ioutil"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -26,19 +25,11 @@ type IPSearch struct {
 }
 
 func New(path string) (*IPSearch, error) {
-	ips, err := loadIpDat(path)
-	if err != nil {
-		log.Fatal("the IP Dat loaded failed!")
-	}
-	return ips, nil
-}
-
-func loadIpDat(path string) (*IPSearch, error) {
-	p := IPSearch{}
+	p := &IPSearch{}
 	//加载ip地址库信息
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	p.data = data
 	p.prefixMap = make(map[uint32]prefixIndex)
@@ -58,7 +49,7 @@ func loadIpDat(path string) (*IPSearch, error) {
 		pf.endIndex = bytesToLong(indexBuffer[i+5], indexBuffer[i+6], indexBuffer[i+7], indexBuffer[i+8])
 		p.prefixMap[prefix] = pf
 	}
-	return &p, nil
+	return p, nil
 }
 
 func (p *IPSearch) Get(ip string) string {
