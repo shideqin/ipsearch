@@ -1,6 +1,7 @@
 package ipsearch
 
 import (
+	"errors"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -22,6 +23,14 @@ type IPSearch struct {
 	prefixStartOffset  uint32
 	prefixEndOffset    uint32
 	prefixCount        uint32
+}
+
+type IPResult struct {
+	Country  string
+	Province string
+	City     string
+	Area     string
+	Isp      string
 }
 
 func New(path string) (*IPSearch, error) {
@@ -52,7 +61,7 @@ func New(path string) (*IPSearch, error) {
 	return p, nil
 }
 
-func (p *IPSearch) Get(ip string) string {
+func (p *IPSearch) Get(ip string) (*IPResult, error) {
 	ips := strings.Split(ip, ".")
 	x, _ := strconv.Atoi(ips[0])
 	prefix := uint32(x)
@@ -65,7 +74,7 @@ func (p *IPSearch) Get(ip string) string {
 		low = p.prefixMap[prefix].startIndex
 		high = p.prefixMap[prefix].endIndex
 	} else {
-		return ""
+		return nil, errors.New("no ip data was searched")
 	}
 
 	var myIndex uint32
@@ -79,9 +88,16 @@ func (p *IPSearch) Get(ip string) string {
 	ipIndex.getIndex(myIndex, p)
 
 	if ipIndex.startIP <= intIP && ipIndex.endIP >= intIP {
-		return ipIndex.getLocal(p)
+		local := strings.Split(ipIndex.getLocal(p), "|")
+		return &IPResult{
+			Country:  local[1],
+			Province: local[2],
+			City:     local[3],
+			Area:     local[4],
+			Isp:      local[5],
+		}, nil
 	} else {
-		return ""
+		return nil, errors.New("no ip data was searched")
 	}
 }
 
