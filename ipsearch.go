@@ -29,7 +29,6 @@ func New(path string) (*ipSearch, error) {
 	ips, err := loadIpDat(path)
 	if err != nil {
 		log.Fatal("the IP Dat loaded failed!")
-		return nil, err
 	}
 	return ips, nil
 }
