@@ -127,7 +127,6 @@ func (p *IPSearch) binarySearch(low uint32, high uint32, k uint32) uint32 {
 func (p *IPSearch) getEndIp(left uint32) uint32 {
 	leftOffset := p.firstStartIpOffset + left*12
 	return bytesToLong(p.data[4+leftOffset], p.data[5+leftOffset], p.data[6+leftOffset], p.data[7+leftOffset])
-
 }
 
 func (p *ipIndex) getIndex(left uint32, ips *IPSearch) {
@@ -148,15 +147,24 @@ func (p *ipIndex) getLocal(ips *IPSearch) string {
 
 func ipToLong(ip string) uint32 {
 	quads := strings.Split(ip, ".")
+	l := len(quads)
 	var result uint32 = 0
-	a, _ := strconv.Atoi(quads[3])
-	result += uint32(a)
-	b, _ := strconv.Atoi(quads[2])
-	result += uint32(b) << 8
-	c, _ := strconv.Atoi(quads[1])
-	result += uint32(c) << 16
-	d, _ := strconv.Atoi(quads[0])
-	result += uint32(d) << 24
+	if l > 3 {
+		a, _ := strconv.Atoi(quads[3])
+		result += uint32(a)
+	}
+	if l > 2 {
+		b, _ := strconv.Atoi(quads[2])
+		result += uint32(b) << 8
+	}
+	if l > 1 {
+		c, _ := strconv.Atoi(quads[1])
+		result += uint32(c) << 16
+	}
+	if l > 0 {
+		d, _ := strconv.Atoi(quads[0])
+		result += uint32(d) << 24
+	}
 	return result
 }
 
